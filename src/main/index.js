@@ -1,6 +1,10 @@
 'use strict'
 
 import { app, BrowserWindow } from 'electron'
+import Auth from './auth'
+import storage from 'electron-json-storage-sync'
+import fs from 'fs'
+import path from 'path'
 
 /**
  * Set `__static` path to static files in production
@@ -20,9 +24,11 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 563,
-    useContentSize: true,
-    width: 1000
+    // height: 563,
+    // useContentSize: true,
+    // width: 1000
+    height: 728,
+    width: 1024
   })
 
   mainWindow.loadURL(winURL)
@@ -32,7 +38,36 @@ function createWindow () {
   })
 }
 
-app.on('ready', createWindow)
+function verifyAuth () {
+  const checkStorage = storage.has('auth')
+  if (checkStorage.status) {
+    if (!checkStorage.data) {
+      fs.writeFileSync(path.join(app.getPath('userData'), 'storage', 'auth.json'), '{}')
+    }
+  } else {
+    throw checkStorage.error
+  }
+  const authStorage = storage.get('auth')
+  if (authStorage.status) {
+    if (authStorage.data.token) {
+      createWindow()
+    } else {
+      let auth = new Auth()
+      auth.getAccessToken((token) => {
+        let result = storage.set('auth', {token: token})
+        if (result.status) {
+          createWindow()
+        } else {
+          throw result.error
+        }
+      })
+    }
+  } else {
+    throw authStorage.error
+  }
+}
+
+app.on('ready', verifyAuth)
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
