@@ -9,3 +9,7 @@ export const setArticles = (state, payload) => {
 export const setArticle = (state, payload) => {
   state.detail.article = payload.article
 }
+
+export const setHtml = (state, payload) => {
+  state.detail.html = payload.html
+}

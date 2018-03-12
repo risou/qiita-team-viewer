@@ -11,7 +11,7 @@
           <h1 class="item_title">{{ article.title }}</h1>
         </div>
       </header>
-      <div class="item_body" v-html="article.rendered_body">
+      <div class="item_body" v-html="html">
       </div>
     </article>
   </div>
@@ -24,7 +24,8 @@ export default {
   name: 'detail-view',
   computed: {
     ...mapState({
-      article: state => state.detail.article
+      article: state => state.detail.article,
+      html: state => state.detail.html
     })
   }
 }

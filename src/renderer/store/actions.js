@@ -1,6 +1,8 @@
 import Qiita from 'qiita-js'
 import async from 'async'
 import storage from 'electron-json-storage-sync'
+import axios from 'axios'
+import cheerio from 'cheerio'
 
 let token
 
@@ -14,6 +16,22 @@ function setToken () {
     }
   }
   Qiita.setToken(token)
+  const authHeader = 'Bearer ' + token
+  axios.defaults.headers.common['Authorization'] = authHeader
+}
+
+function overwriteImgSrc (imageUrl) {
+  let result = imageUrl
+  axios({
+    method: 'get',
+    url: imageUrl,
+    responseType: 'arraybuffer'
+  }).then((resp) => {
+    const mimeType = resp.headers['content-type'].toLowerCase()
+    const imgBase64 = Buffer.from(resp.data, 'binary').toString('base64')
+    result = 'data:' + mimeType + ';base64,' + imgBase64
+  })
+  return result
 }
 
 export const getTeams = async (context) => {
@@ -60,5 +78,12 @@ export const getArticle = (context, payload) => {
 }
 
 export const selectArticle = (context, payload) => {
+  let body = cheerio.load(payload.article.rendered_body)
+  body('body').find('img').each((i, elem) => {
+    const src = body(elem).attr('src')
+    const processedSrc = overwriteImgSrc(src)
+    body(elem).attr('src', processedSrc)
+  })
   context.commit('setArticle', { article: payload.article })
+  context.commit('setHtml', { html: body.html() })
 }
