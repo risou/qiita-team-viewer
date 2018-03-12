@@ -29,7 +29,6 @@ export default class Auth {
     authWindow.loadURL(authUrl)
 
     authWindow.webContents.on('will-navigate', (event, url) => {
-      console.log(url)
       const queryStrings = /\?(.*)/.exec(url)
       const params = queryStrings[1].split('&')
       var args = {}
