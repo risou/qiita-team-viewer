@@ -2,6 +2,7 @@
   <div class="list">
     <article v-for="article in articles">
       <div class="icon">
+        <img :src="article.user.profile_image_url" width="40" height="40">
       </div>
       <div class="list_body">
         <div class="list_header">
