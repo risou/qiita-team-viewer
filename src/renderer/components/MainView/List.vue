@@ -8,7 +8,7 @@
           <div class="list_user">
             {{ article.team }}/@{{ article.user.id }}
           </div>
-          <div class="list_datetime" :title="article.created_at">{{ article.created_at }}</div>
+          <div class="list_datetime" :title="article.absolute_time">{{ article.relative_time }}</div>
         </div>
         <div class="list_main">
           <h1 class="list_title">

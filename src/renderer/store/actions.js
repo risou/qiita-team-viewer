@@ -3,6 +3,7 @@ import async from 'async'
 import storage from 'electron-json-storage-sync'
 import axios from 'axios'
 import cheerio from 'cheerio'
+import moment from 'moment'
 
 let token
 
@@ -32,6 +33,17 @@ function overwriteImgSrc (imageUrl) {
     result = 'data:' + mimeType + ';base64,' + imgBase64
   })
   return result
+}
+
+function calcRelativeTime (absoluteTime) {
+  const diff = moment() - moment(absoluteTime)
+  if (diff < 3600000) {
+    return Math.floor(diff / 60000) + '分前'
+  } else if (diff < 86400000) {
+    return '約' + Math.floor(diff / 3600000) + '時間前'
+  } else {
+    return Math.floor(diff / 86400000) + '日前'
+  }
 }
 
 export const getTeams = async (context) => {
@@ -69,6 +81,10 @@ export const getArticles = (context) => {
       if (a.created_at > b.created_at) return -1
       return 0
     })
+    for (let i = 0; i < sortedArticles.length; i++) {
+      sortedArticles[i].relative_time = calcRelativeTime(sortedArticles[i].created_at)
+      sortedArticles[i].absolute_time = moment(sortedArticles[i].created_at).format('YYYY/MM/DD HH:mm:ss')
+    }
     context.commit('setArticles', { articles: sortedArticles })
   })
 }
