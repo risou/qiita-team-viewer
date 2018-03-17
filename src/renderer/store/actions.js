@@ -94,6 +94,8 @@ export const getArticle = (context, payload) => {
 }
 
 export const selectArticle = (context, payload) => {
+  payload.article.absolute_updated = moment(payload.article.updated_at).format('YYYY/MM/DD HH:mm:ss')
+
   let body = cheerio.load(payload.article.rendered_body)
   body('body').find('img').each((i, elem) => {
     const src = body(elem).attr('src')
