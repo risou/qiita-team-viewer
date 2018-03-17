@@ -113,4 +113,5 @@ export const selectArticle = (context, payload) => {
   })
   context.commit('setArticle', { article: payload.article })
   context.commit('setHtml', { html: body.html() })
+  window.scrollTo(0, 0)
 }
