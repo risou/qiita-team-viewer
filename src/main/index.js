@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import Auth from './auth'
 import storage from 'electron-json-storage-sync'
 import fs from 'fs'
@@ -32,6 +32,10 @@ function createWindow () {
     webPreferences: {
       webSecurity: false
     }
+  })
+  mainWindow.webContents.on('new-window', (event, url) => {
+    event.preventDefault()
+    shell.openExternal(url)
   })
 
   mainWindow.loadURL(winURL)

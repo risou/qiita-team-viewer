@@ -100,6 +100,17 @@ export const selectArticle = (context, payload) => {
     const processedSrc = overwriteImgSrc(src)
     body(elem).attr('src', processedSrc)
   })
+  body('body').find('a').each((i, elem) => {
+    const href = body(elem).attr('href')
+    if (href.match(/^\//)) {
+      const url = 'https://' + payload.article.team + '.qiita.com' + href
+      body(elem).attr('href', url)
+      body(elem).attr('target', '_blank')
+    } else if (href.match(/^#/)) {
+    } else {
+      body(elem).attr('target', '_blank')
+    }
+  })
   context.commit('setArticle', { article: payload.article })
   context.commit('setHtml', { html: body.html() })
 }
