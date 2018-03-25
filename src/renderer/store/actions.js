@@ -1,4 +1,5 @@
 import Qiita from 'qiita-js'
+import request from 'request'
 import async from 'async'
 import storage from 'electron-json-storage-sync'
 import axios from 'axios'
@@ -6,6 +7,13 @@ import cheerio from 'cheerio'
 import moment from 'moment'
 
 let token
+
+function setUser (context, team) {
+  Qiita.setEndpoint('https://' + team + '.qiita.com')
+  Qiita.Resources.AuthenticatedUser.get_authenticated_user().then((user) => {
+    context.commit('setUser', { user: user })
+  })
+}
 
 function setToken () {
   if (!token) {
@@ -56,6 +64,7 @@ export const getTeams = async (context) => {
         teams.push(listTeams[i].id)
       }
       context.commit('setTeam', { teams: teams })
+      setUser(context, listTeams[0].id)
     })
 }
 
@@ -94,26 +103,86 @@ export const getArticle = (context, payload) => {
 }
 
 export const selectArticle = (context, payload) => {
-  payload.article.absolute_updated = moment(payload.article.updated_at).format('YYYY/MM/DD HH:mm:ss')
+  context.commit('clearPalette')
 
-  let body = cheerio.load(payload.article.rendered_body)
-  body('body').find('img').each((i, elem) => {
-    const src = body(elem).attr('src')
-    const processedSrc = overwriteImgSrc(src)
-    body(elem).attr('src', processedSrc)
+  Qiita.setEndpoint('https://' + payload.article.team + '.qiita.com')
+  Qiita.Resources.Item.get_item(payload.article.id).then((result) => {
+    // set team
+    context.commit('setDetailTeam', { team: payload.article.team })
+    // process img src for SSL
+    let body = cheerio.load(result.rendered_body)
+    body('body').find('img').each((i, elem) => {
+      const src = body(elem).attr('src')
+      const processedSrc = overwriteImgSrc(src)
+      body(elem).attr('src', processedSrc)
+    })
+    body('body').find('a').each((i, elem) => {
+      const href = body(elem).attr('href')
+      if (href.match(/^\//)) {
+        const url = 'https://' + payload.article.team + '.qiita.com' + href
+        body(elem).attr('href', url)
+        body(elem).attr('target', '_blank')
+      } else if (href.match(/^#/)) {
+      } else {
+        body(elem).attr('target', '_blank')
+      }
+    })
+    // set absolute time of updated_at
+    result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+
+    context.commit('setArticle', { article: result })
+    context.commit('setHtml', { html: body.html() })
+    window.scrollTo(0, 0)
   })
-  body('body').find('a').each((i, elem) => {
-    const href = body(elem).attr('href')
-    if (href.match(/^\//)) {
-      const url = 'https://' + payload.article.team + '.qiita.com' + href
-      body(elem).attr('href', url)
-      body(elem).attr('target', '_blank')
-    } else if (href.match(/^#/)) {
-    } else {
-      body(elem).attr('target', '_blank')
+
+  request.get({
+    url: 'https://' + payload.article.team + '.qiita.com/api/v2/items/' + payload.article.id + '/reactions',
+    json: true,
+    auth: {
+      'bearer': token
     }
+  }, (error, response, body) => {
+    if (error) throw error
+    let userReaction = []
+    for (let i = 0; i < body.length; i++) {
+      if (body[i].user.id === context.state.user.id) {
+        userReaction.push(body[i].name)
+      }
+    }
+    context.commit('setReactions', { reactions: body.reverse() })
+    context.commit('setUserReaction', { reactionList: userReaction })
   })
-  context.commit('setArticle', { article: payload.article })
-  context.commit('setHtml', { html: body.html() })
-  window.scrollTo(0, 0)
+}
+
+export const toggleReaction = (context, payload) => {
+  const reaction = payload.reaction
+  const detail = context.state.detail
+  const current = detail.isReactioned[reaction]
+  if (current) { // true -> false : DELETE
+    request.delete({
+      url: 'https://' + detail.team + '.qiita.com/api/v2/items/' + detail.article.id + '/reactions/' + reaction,
+      json: true,
+      auth: {
+        'bearer': token
+      }
+    }, (error, response, body) => {
+      if (error) throw error
+      context.commit('deleteReaction', { name: reaction })
+      context.commit('clearPalette')
+    })
+  } else { // false -> true : POST
+    request.post({
+      url: 'https://' + detail.team + '.qiita.com/api/v2/items/' + detail.article.id + '/reactions',
+      json: {
+        name: reaction
+      },
+      auth: {
+        'bearer': token
+      }
+    }, (error, response, body) => {
+      if (error) throw error
+      context.commit('addReaction', { name: reaction, body: body })
+      context.commit('clearPalette')
+    })
+  }
 }
