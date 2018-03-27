@@ -75,7 +75,7 @@ export const getArticles = (context) => {
     Qiita.setEndpoint('https://' + team + '.qiita.com')
     Qiita.Resources.Item.list_items({
       page: 1,
-      per_page: 20
+      per_page: 10
     }).then((list) => {
       for (let i = 0; i < list.length; i++) {
         list[i].team = team
@@ -96,10 +96,6 @@ export const getArticles = (context) => {
     }
     context.commit('setArticles', { articles: sortedArticles })
   })
-}
-
-export const getArticle = (context, payload) => {
-
 }
 
 export const selectArticle = (context, payload) => {
