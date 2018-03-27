@@ -78,7 +78,7 @@ export default {
       eyes: state => state.detail.isReactioned.eyes
     }),
     userUrl () {
-      return 'https://' + this.$store.state.detail.article.team + '.qiita.com/' + this.$store.state.detail.article.user.id
+      return 'https://' + this.$store.state.detail.team + '.qiita.com/' + this.$store.state.detail.article.user.id
     }
   },
   methods: {
