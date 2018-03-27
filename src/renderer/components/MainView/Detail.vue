@@ -48,7 +48,7 @@
         </div>
         <div class="reaction_contents">
           <div class="reaction_contents_block" v-for="reaction in reactions">
-            <img class="reaction_contents_user" :src="reaction.user.profile_image_url">
+            <img class="reaction_contents_user" :src="reaction.user.profile_image_url" :alt="reaction.user.id" :title="reaction.user.id">
             <br>
             <img class="reaction_contents_icon" :src="reaction.image_url" :alt="reaction.name">
           </div>
