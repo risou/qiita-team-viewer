@@ -49,6 +49,26 @@ let rendererConfig = {
         })
       },
       {
+        test: /\.scss$/,
+        use: [
+          'style-loader',
+          {
+            loader: 'css-loader',
+            options: {
+              url: false,
+              sourceMap: false,
+              importLoaders: 2
+            },
+          },
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: false
+            }
+          }
+        ]
+      },
+      {
         test: /\.html$/,
         use: 'vue-html-loader'
       },
