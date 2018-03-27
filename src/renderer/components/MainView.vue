@@ -1,9 +1,9 @@
 <template>
-  <div id="main">
-    <div id="list">
+  <div id="main" class="columns is-multiline">
+    <div id="list" class="column is-4 is-fullheight">
       <list></list>
     </div>
-    <div id="detail">
+    <div id="detail" class="column is-8 is-offset-4 is-fullheight">
       <detail></detail>
     </div>
   </div>
@@ -24,19 +24,12 @@
 
 <style>
 #list {
-  position: fixed!important;
-  position: absolute;
+  position: fixed;
   height: 100%;
-  width: 30%;
-  border-right: solid 1px;
-  top: 0;
-  left: 0;
   overflow: auto;
 }
 #detail {
-  height: 100%;
-  width: 70%;
-  overflow: auto;
-  float: right;
+  position: relative;
+  left: -12px;
 }
 </style>

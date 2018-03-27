@@ -1,27 +1,24 @@
 <template>
   <div class="detail">
     <article class="item" v-if="Object.keys(article).length">
-      <header class="item_header">
-        <div class="item_header_body">
-          <div class="item_header_icon">
-            <a><img class="user_icon" :title="article.user.id" :src="article.user.profile_image_url" width="36" height="36"></a>
-          </div>
-          <div class="item_header_notes">
-            <div class="item_header_user">
-              <a :href="userUrl" target="_blank">{{ article.team }}/@{{ article.user.id }}</a>
+      <div class="media">
+        <div class="media-left image is-64x64">
+          <a><img :title="article.user.id" :src="article.user.profile_image_url"></a>
+        </div>
+        <div class="media-content">
+          <div class="level is-marginless">
+            <div class="level-left">
+              <a :href="userUrl" target="_blank">{{ team }}/@{{ article.user.id }}</a>
             </div>
-            <div class="item_header_date">
+            <div class="level-right">
               {{ article.absolute_updated }}
             </div>
-            <ul class="item_header_actions">
-            </ul>
           </div>
-          <div class="item_header_title">
-            <h1 class="item_title">{{ article.title }}</h1>
-          </div>
+          <h1 class="title">{{ article.title }}</h1>
         </div>
-      </header>
-      <div class="item_body" v-html="html">
+      </div>
+      <hr/>
+      <div class="content" v-html="html">
       </div>
       <div class="reaction_panel">
         <div class="reaction_palette">
@@ -69,6 +66,7 @@ export default {
   computed: {
     ...mapState({
       article: state => state.detail.article,
+      team: state => state.detail.team,
       html: state => state.detail.html,
       reactions: state => state.detail.reactions,
       isPaletteOpen: state => state.detail.isPaletteOpen,
@@ -94,7 +92,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .reaction_panel {
   display: flex;
   padding-bottom: 18px;
@@ -153,9 +151,9 @@ export default {
   border-bottom-right-radius: 2px;
   border: 1px solid #ddd;
   border-left-style: none;
-  padding: 10px 2px;
+  padding: 6px 2px;
   font-size: 16px;
-  height: 16px;
+  height: 36px;
 }
 .reaction_palette_button:hover {
   background: #458ac5;
@@ -191,5 +189,39 @@ img {
   position: absolute;
   right: -7px;
   bottom: -7px;
+}
+
+.content {
+  .fa.fa-link {
+    display: none;
+  }
+  h1 {
+    border-bottom: solid 3px #eee;
+    font-size: 1.7em;
+    padding-bottom: .3em;
+  }
+  h2 {
+    border-bottom: solid 1px #eee;
+    font-size: 1.6em;
+    padding-bottom: .3em;
+  }
+  h3 {
+    font-size: 1.3em;
+  }
+  h4 {
+    font-size: 1.2em;
+  }
+  h5 {
+    font-size: 1.1em;
+  }
+  h6 {
+    font-size: 1em;
+    color: #777;
+  }
+  .code-lang {
+    display: inline-block;
+    padding: .1em .5em;
+    background-color: rgba(0, 0, 0, .07);
+  }
 }
 </style>

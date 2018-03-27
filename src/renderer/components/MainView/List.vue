@@ -1,29 +1,33 @@
 <template>
   <div class="list">
-    <article v-for="article in articles">
-      <div class="icon">
-        <img :src="article.user.profile_image_url" width="40" height="40">
-      </div>
-      <div class="list_body">
-        <div class="list_header">
-          <div class="list_user">
-            {{ article.team }}/@{{ article.user.id }}
-          </div>
-          <div class="list_datetime" :title="article.absolute_time">{{ article.relative_time }}</div>
+    <article v-for="article in articles" class="box is-marginless is-radiusless">
+      <div class="media">
+        <div class="media-left">
+          <img :src="article.user.profile_image_url" width="40" height="40">
         </div>
-        <div class="list_main">
-          <h1 class="list_title">
-            <a @click="selectArticle({ article: article })">{{ article.title }}</a>
-            <span class="group" v-if="article.group">{{ article.group.name }}</span>
-          </h1>
-          <div class="list_tags">
-            <div class="list_tag" v-for="tag in article.tags">
-              <span class="tag_name">{{ tag.name }}</span>
+        <div class="media-content">
+          <div class="level">
+            <div class="level-left">
+              {{ article.team }}/@{{ article.user.id }}
+            </div>
+            <div class="level-right" :title="article.absolute_time">
+              {{ article.relative_time }}
             </div>
           </div>
-          <div class="list_stats">
-            <i class="fas fa-comments"> {{ article.comments_count }}</i>
-            <i class="far fa-smile"> {{ article.reactions_count }}</i>
+          <div class="content">
+            <a @click="selectArticle({ article: article })">{{ article.title }}</a>
+            <span class="tag is-info" v-if="article.group">{{ article.group.name }}</span>
+          </div>
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item" v-for="tag in article.tags">
+                <span class="tag">{{ tag.name }}</span>
+              </div>
+            </div>
+            <div class="level-right">
+              <span class="fas fa-comments level-item"> {{ article.comments_count }}</span>
+              <span class="far fa-smile level-item"> {{ article.reactions_count }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -54,5 +58,15 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+.fa-comments:before {
+  margin-right: 0.25em;
+  font-weight: 900;
+}
+.fa-comments {
+  font-weight: 400;
+}
+.fa-smile:before {
+  margin-right: 0.25em;
+}
 </style>
