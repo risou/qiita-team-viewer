@@ -2,6 +2,7 @@ export default {
   user: {},
   team: [],
   articles: [],
+  selected: '',
   detail: {
     team: '',
     article: {},

@@ -1,6 +1,6 @@
 <template>
   <div class="list">
-    <article v-for="article in articles" class="box is-marginless is-radiusless">
+    <article v-for="article in articles" class="box is-marginless is-radiusless" @click="selectArticle({ article: article })" :class="{ active: article.id === selected }">
       <div class="media">
         <div class="media-left">
           <img :src="article.user.profile_image_url" width="40" height="40">
@@ -15,7 +15,7 @@
             </div>
           </div>
           <div class="content">
-            <a @click="selectArticle({ article: article })">{{ article.title }}</a>
+            <a>{{ article.title }}</a>
             <span class="tag is-info" v-if="article.group">{{ article.group.name }}</span>
           </div>
           <div class="level">
@@ -42,7 +42,8 @@ export default {
   name: 'list-view',
   computed: {
     ...mapState([
-      'articles'
+      'articles',
+      'selected'
     ])
   },
   methods: {
@@ -59,6 +60,16 @@ export default {
 </script>
 
 <style lang="scss">
+.box:hover {
+  background-color: #eee;
+}
+.box a:hover {
+  color: #3273dc;
+}
+.box.active {
+  padding: 18px;
+  border: 2px solid hsl(204, 86%, 53%);
+}
 .fa-comments:before {
   margin-right: 0.25em;
   font-weight: 900;

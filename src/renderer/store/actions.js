@@ -103,6 +103,8 @@ export const selectArticle = (context, payload) => {
 
   Qiita.setEndpoint('https://' + payload.article.team + '.qiita.com')
   Qiita.Resources.Item.get_item(payload.article.id).then((result) => {
+    // set selected
+    context.commit('setSelected', { id: payload.article.id })
     // set team
     context.commit('setDetailTeam', { team: payload.article.team })
     // process img src for SSL

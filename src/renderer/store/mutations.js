@@ -8,10 +8,15 @@ export const setTeam = (state, payload) => {
 
 export const setArticles = (state, payload) => {
   state.articles = payload.articles
+  state.articles.splice(payload.articles.length)
 }
 
 export const setArticle = (state, payload) => {
   state.detail.article = payload.article
+}
+
+export const setSelected = (state, payload) => {
+  state.selected = payload.id
 }
 
 export const setDetailTeam = (state, payload) => {
