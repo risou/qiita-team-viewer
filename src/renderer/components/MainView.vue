@@ -10,6 +10,7 @@
 </template>
 
 <script>
+  import { shell } from 'electron'
   import List from './MainView/List'
   import Detail from './MainView/Detail'
 
@@ -18,6 +19,39 @@
     components: {
       List,
       Detail
+    },
+    mounted () {
+      this.$electron.ipcRenderer.on('R', (event, arg) => {
+        this.$store.dispatch('getArticles')
+      })
+      this.$electron.ipcRenderer.on('J', (event, arg) => {
+        const current = document.getElementsByClassName('box active')
+        if (current.length > 0) {
+          const currentElement = current[0]
+          const rect = currentElement.getBoundingClientRect()
+          if (rect.top < 0 || rect.bottom + 148 > window.innerHeight) {
+            currentElement.scrollIntoView(true)
+          }
+        }
+        this.$store.dispatch('nextArticle')
+      })
+      this.$electron.ipcRenderer.on('K', (event, arg) => {
+        const current = document.getElementsByClassName('box active')
+        if (current.length > 0) {
+          const currentElement = current[0]
+          const rect = currentElement.getBoundingClientRect()
+          if (rect.top - 148 < 0 || rect.bottom > window.innerHeight) {
+            currentElement.scrollIntoView(false)
+          }
+        }
+        this.$store.dispatch('prevArticle')
+      })
+      this.$electron.ipcRenderer.on('L', (evnet, arg) => {
+        const url = this.$store.state.detail.article.url
+        if (url) {
+          shell.openExternal(url)
+        }
+      })
     }
   }
 </script>

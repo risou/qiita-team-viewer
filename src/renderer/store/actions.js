@@ -152,6 +152,110 @@ export const selectArticle = (context, payload) => {
   })
 }
 
+export const nextArticle = (context, payload) => {
+  const current = context.state.selected
+  const list = context.state.articles
+  let next
+  if (!current && list.length > 0) {
+    next = list[0]
+  } else {
+    for (let i = 0; i < list.length - 1; i++) {
+      if (current !== list[i].id) {
+        continue
+      }
+      next = list[i + 1]
+    }
+  }
+
+  if (next) {
+    context.commit('clearPalette')
+
+    Qiita.setEndpoint('https://' + next.team + '.qiita.com')
+    Qiita.Resources.Item.get_item(next.id).then((result) => {
+      // set selected
+      context.commit('setSelected', { id: next.id })
+      // set team
+      context.commit('setDetailTeam', { team: next.team })
+      // process img src for SSL
+      let body = cheerio.load(result.rendered_body)
+      body('body').find('img').each((i, elem) => {
+        const src = body(elem).attr('src')
+        const processedSrc = overwriteImgSrc(src)
+        body(elem).attr('src', processedSrc)
+      })
+      body('body').find('a').each((i, elem) => {
+        const href = body(elem).attr('href')
+        if (href.match(/^\//)) {
+          const url = 'https://' + next.team + '.qiita.com' + href
+          body(elem).attr('href', url)
+          body(elem).attr('target', '_blank')
+        } else if (href.match(/^#/)) {
+        } else {
+          body(elem).attr('target', '_blank')
+        }
+      })
+      // set absolute time of updated_at
+      result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+
+      context.commit('setArticle', { article: result })
+      context.commit('setHtml', { html: body.html() })
+      window.scrollTo(0, 0)
+    })
+  }
+}
+
+export const prevArticle = (context, payload) => {
+  const current = context.state.selected
+  const list = context.state.articles
+  let prev
+  if (!current && list.length > 0) {
+    prev = list[0]
+  } else {
+    for (let i = 1; i < list.length; i++) {
+      if (current !== list[i].id) {
+        continue
+      }
+      prev = list[i - 1]
+    }
+  }
+
+  if (prev) {
+    context.commit('clearPalette')
+
+    Qiita.setEndpoint('https://' + prev.team + '.qiita.com')
+    Qiita.Resources.Item.get_item(prev.id).then((result) => {
+      // set selected
+      context.commit('setSelected', { id: prev.id })
+      // set team
+      context.commit('setDetailTeam', { team: prev.team })
+      // process img src for SSL
+      let body = cheerio.load(result.rendered_body)
+      body('body').find('img').each((i, elem) => {
+        const src = body(elem).attr('src')
+        const processedSrc = overwriteImgSrc(src)
+        body(elem).attr('src', processedSrc)
+      })
+      body('body').find('a').each((i, elem) => {
+        const href = body(elem).attr('href')
+        if (href.match(/^\//)) {
+          const url = 'https://' + prev.team + '.qiita.com' + href
+          body(elem).attr('href', url)
+          body(elem).attr('target', '_blank')
+        } else if (href.match(/^#/)) {
+        } else {
+          body(elem).attr('target', '_blank')
+        }
+      })
+      // set absolute time of updated_at
+      result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+
+      context.commit('setArticle', { article: result })
+      context.commit('setHtml', { html: body.html() })
+      window.scrollTo(0, 0)
+    })
+  }
+}
+
 export const toggleReaction = (context, payload) => {
   const reaction = payload.reaction
   const detail = context.state.detail

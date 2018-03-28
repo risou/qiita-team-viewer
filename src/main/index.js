@@ -1,6 +1,6 @@
 'use strict'
 
-import { app, BrowserWindow, shell } from 'electron'
+import { app, Menu, BrowserWindow, shell } from 'electron'
 import Auth from './auth'
 import storage from 'electron-json-storage-sync'
 import fs from 'fs'
@@ -37,12 +37,68 @@ function createWindow () {
     event.preventDefault()
     shell.openExternal(url)
   })
+  mainWindow.webContents.on('will-navigate', (event, url) => {
+
+  })
+
+  setupMenu()
 
   mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
     mainWindow = null
   })
+}
+
+function setupMenu () {
+  const template = [
+    {
+      label: 'Electron',
+      submenu: [
+        { role: 'close' }
+      ]
+    },
+    {
+      label: 'Select',
+      submenu: [
+        {
+          label: 'Next',
+          accelerator: 'J',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('J', 'Next')
+          }
+        },
+        {
+          label: 'Previous',
+          accelerator: 'K',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('K', 'Previous')
+          }
+        },
+        {
+          label: 'Open Browser',
+          accelerator: 'L',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('L', 'Open Browser')
+          }
+        }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: 'Reload',
+          accelerator: 'CmdOrCtrl+R',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('R', 'Reload')
+          }
+        }
+      ]
+    }
+  ]
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
 
 function verifyAuth () {
