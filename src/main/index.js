@@ -55,7 +55,8 @@ function setupMenu () {
     {
       label: 'Electron',
       submenu: [
-        { role: 'close' }
+        { role: 'close' },
+        { role: 'quit' }
       ]
     },
     {
