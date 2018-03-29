@@ -32,6 +32,13 @@
           if (rect.top < 0 || rect.bottom + 148 > window.innerHeight) {
             currentElement.scrollIntoView(true)
           }
+        } else {
+          const articles = document.getElementsByClassName('box')
+          const first = articles[0]
+          const rect = first.getBoundingClientRect()
+          if (rect.top < 0) {
+            first.scrollIntoView(true)
+          }
         }
         this.$store.dispatch('nextArticle')
       })
@@ -42,6 +49,13 @@
           const rect = currentElement.getBoundingClientRect()
           if (rect.top - 148 < 0 || rect.bottom > window.innerHeight) {
             currentElement.scrollIntoView(false)
+          }
+        } else {
+          const articles = document.getElementsByClassName('box')
+          const first = articles[0]
+          const rect = first.getBoundingClientRect()
+          if (rect.top < 0) {
+            first.scrollIntoView(true)
           }
         }
         this.$store.dispatch('prevArticle')
