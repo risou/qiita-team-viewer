@@ -66,4 +66,7 @@
   position: relative;
   left: -12px;
 }
+::-webkit-scrollbar {
+  display: none;
+}
 </style>
