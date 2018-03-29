@@ -60,10 +60,10 @@ export default {
 </script>
 
 <style lang="scss">
-.box:hover {
+#list .box:hover {
   background-color: #eee;
 }
-.box a:hover {
+#list .box a:hover {
   color: #3273dc;
 }
 .box.active {

@@ -8,6 +8,7 @@ export default {
     article: {},
     html: '',
     reactions: [],
+    comments: [],
     isPaletteOpen: false,
     isReactioned: {
       '+1': false,

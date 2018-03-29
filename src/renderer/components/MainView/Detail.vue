@@ -1,9 +1,9 @@
 <template>
-  <div class="detail">
+  <div class="detail" @click="clearPalettes">
     <article class="item" v-if="Object.keys(article).length">
       <div class="media">
         <div class="media-left image is-64x64">
-          <a><img :title="article.user.id" :src="article.user.profile_image_url"></a>
+          <a><img :title="article.user.id" :src="article.user.profile_image_url" class="author_icon"></a>
         </div>
         <div class="media-content">
           <div class="level is-marginless">
@@ -23,22 +23,22 @@
       <div class="reaction_panel">
         <div class="reaction_palette">
           <div class="reaction_panel_slide" :class="{ open: isPaletteOpen }">
-            <a class="reaction_panel_icon" :class="{ active: plusOne }" @click="toggleReaction({ reaction: '+1' })">
+            <a class="reaction_panel_icon" :class="{ active: isReactioned['+1'] }" @click="toggleReaction({ reaction: '+1' })">
               <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png" alt="+1" />
             </a>
-            <a class="reaction_panel_icon" :class="{ active: pray }" @click="toggleReaction({ reaction: 'pray' })">
+            <a class="reaction_panel_icon" :class="{ active: isReactioned['pray'] }" @click="toggleReaction({ reaction: 'pray' })">
               <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png" alt="pray" />
             </a>
-            <a class="reaction_panel_icon" :class="{ active: tada }" @click="toggleReaction({ reaction: 'tada' })">
+            <a class="reaction_panel_icon" :class="{ active: isReactioned['tada'] }" @click="toggleReaction({ reaction: 'tada' })">
               <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png" alt="tada" />
             </a>
-            <a class="reaction_panel_icon" :class="{ active: bow }" @click="toggleReaction({ reaction: 'bow' })">
+            <a class="reaction_panel_icon" :class="{ active: isReactioned['bow'] }" @click="toggleReaction({ reaction: 'bow' })">
               <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png" alt="bow" />
             </a>
-            <a class="reaction_panel_icon" :class="{ active: scream }" @click="toggleReaction({ reaction: 'scream' })">
+            <a class="reaction_panel_icon" :class="{ active: isReactioned['scream'] }" @click="toggleReaction({ reaction: 'scream' })">
               <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png" alt="scream" />
             </a>
-            <a class="reaction_panel_icon" :class="{ active: eyes }" @click="toggleReaction({ reaction: 'eyes' })">
+            <a class="reaction_panel_icon" :class="{ active: isReactioned['eyes'] }" @click="toggleReaction({ reaction: 'eyes' })">
               <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png" alt="eyes" />
             </a>
           </div>
@@ -51,6 +51,58 @@
             <img class="reaction_contents_user" :src="reaction.user.profile_image_url" :alt="reaction.user.id" :title="reaction.user.id">
             <br>
             <img class="reaction_contents_icon" :src="reaction.image_url" :alt="reaction.name">
+          </div>
+        </div>
+      </div>
+      <div class="box" v-for="comment in comments">
+        <div class="media">
+          <div class="media-left">
+            <img :src="comment.user.profile_image_url" width="40" height="40" class="commenter_icon">
+          </div>
+          <div class="media-content">
+            <div class="level">
+              <div class="level-left">
+                <a :href="'https://' + team + '.qiita.com/' + comment.user.id">@{{ comment.user.id }}</a>
+              </div>
+              <div class="level-right">
+                {{ comment.absolute_created }}
+              </div>
+            </div>
+            <div class="content" v-html="comment.html"></div>
+            <div class="reaction_panel">
+              <div class="reaction_palette">
+                <div class="reaction_panel_slide" :class="{ open: comment.isPaletteOpen }">
+                  <a class="reaction_panel_icon" :class="{ active: comment.isReactioned['+1'] }" @click="toggleCommentReaction({ id: comment.id, reaction: '+1' })">
+                    <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f44d.png" alt="+1" />
+                  </a>
+                  <a class="reaction_panel_icon" :class="{ active: comment.isReactioned['pray'] }" @click="toggleCommentReaction({ id: comment.id, reaction: 'pray' })">
+                    <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f64f.png" alt="pray" />
+                  </a>
+                  <a class="reaction_panel_icon":class="{ active: comment.isReactioned['tada'] }" @click="toggleCommentReaction({ id: comment.id, reaction: 'tada' })">
+                    <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f389.png" alt="tada" />
+                  </a>
+                  <a class="reaction_panel_icon":class="{ active: comment.isReactioned['bow'] }" @click="toggleCommentReaction({ id: comment.id, reaction: 'bow' })">
+                    <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f647.png" alt="bow" />
+                  </a>
+                  <a class="reaction_panel_icon":class="{ active: comment.isReactioned['scream'] }" @click="toggleCommentReaction({ id: comment.id, reaction: 'scream' })">
+                    <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f631.png" alt="scream" />
+                  </a>
+                  <a class="reaction_panel_icon":class="{ active: comment.isReactioned['eyes'] }" @click="toggleCommentReaction({ id: comment.id, reaction: 'eyes' })">
+                    <img src="https://cdn.qiita.com/emoji/twemoji/unicode/1f440.png" alt="eyes" />
+                  </a>
+                </div>
+                <a class="reaction_palette_button" @click="toggleCommentPalette(comment.id)">
+                  <i class="fa fa-fw" :class="{ 'fa-caret-right': !comment.isPaletteOpen, 'fa-caret-left': comment.isPaletteOpen }"></i>
+                </a>
+              </div>
+              <div class="reaction_contents">
+                <div class="reaction_contents_block" v-for="reaction in comment.reactions">
+                  <img class="reaction_contents_user" :src="reaction.user.profile_image_url" :alt="reaction.user.id" :title="reaction.user.id">
+                  <br>
+                  <img class="reaction_contents_icon" :src="reaction.image_url" :alt="reaction.name">
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -69,13 +121,9 @@ export default {
       team: state => state.detail.team,
       html: state => state.detail.html,
       reactions: state => state.detail.reactions,
+      comments: state => state.detail.comments,
       isPaletteOpen: state => state.detail.isPaletteOpen,
-      plusOne: state => state.detail.isReactioned['+1'],
-      pray: state => state.detail.isReactioned.pray,
-      tada: state => state.detail.isReactioned.tada,
-      bow: state => state.detail.isReactioned.bow,
-      scream: state => state.detail.isReactioned.scream,
-      eyes: state => state.detail.isReactioned.eyes
+      isReactioned: state => state.detail.isReactioned
     }),
     userUrl () {
       return 'https://' + this.$store.state.detail.team + '.qiita.com/' + this.$store.state.detail.article.user.id
@@ -83,10 +131,19 @@ export default {
   },
   methods: {
     ...mapActions([
-      'toggleReaction'
+      'toggleReaction',
+      'toggleCommentReaction'
     ]),
     togglePalette: function (event) {
       this.$store.commit('togglePalette')
+    },
+    toggleCommentPalette: function (commentId) {
+      this.$store.commit('toggleCommentPalette', { commentId: commentId })
+    },
+    clearPalettes: function (event) {
+      if (!event.target.closest('.reaction_palette')) {
+        this.$store.commit('clearPalettes')
+      }
     }
   }
 }
@@ -129,6 +186,9 @@ export default {
   align-items: center;
   justify-content: center;
 }
+.reaction_panel_icon:hover>img {
+  transform: scale(1.3);
+}
 .reaction_panel_icon.active:before {
   display: block;
   content: '';
@@ -143,6 +203,8 @@ export default {
 .reaction_panel_icon>img {
   width: 23px;
   height: 23px;
+    -webkit-transition: all 0.2s;
+  transition: all 0.2s;
 }
 .reaction_palette_button {
   display: inline-block;
@@ -189,6 +251,12 @@ img {
   position: absolute;
   right: -7px;
   bottom: -7px;
+}
+.author_icon {
+  border-radius: 6px;
+}
+.commenter_icon {
+  border-radius: 4px;
 }
 
 .content {

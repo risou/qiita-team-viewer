@@ -54,6 +54,127 @@ function calcRelativeTime (absoluteTime) {
   }
 }
 
+function getArticle (context, args) {
+  Qiita.setEndpoint('https://' + args.team + '.qiita.com')
+  Qiita.Resources.Item.get_item(args.id).then((result) => {
+    // set selected
+    context.commit('setSelected', { id: args.id })
+    // set team
+    context.commit('setDetailTeam', { team: args.team })
+    // get commetns async
+    getComments(context, { team: args.team, id: args.id })
+    // process img src for SSL
+    let body = cheerio.load(result.rendered_body)
+    body('body').find('img').each((i, elem) => {
+      const src = body(elem).attr('src')
+      const processedSrc = overwriteImgSrc(src)
+      body(elem).attr('src', processedSrc)
+    })
+    // process link use external browser
+    body('body').find('a').each((i, elem) => {
+      const href = body(elem).attr('href')
+      if (href) {
+        if (href.match(/^\//)) {
+          const url = 'https://' + args.team + '.qiita.com' + href
+          body(elem).attr('href', url)
+          body(elem).attr('target', '_blank')
+        } else if (href.match(/^#/)) {
+        } else {
+          body(elem).attr('target', '_blank')
+        }
+      }
+    })
+    // set absolute time of updated_at
+    result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+
+    context.commit('setArticle', { article: result })
+    context.commit('setHtml', { html: body.html() })
+    window.scrollTo(0, 0)
+  })
+}
+
+function getReactions (context, args) {
+  request.get({
+    url: 'https://' + args.team + '.qiita.com/api/v2/items/' + args.id + '/reactions',
+    json: true,
+    auth: {
+      'bearer': token
+    }
+  }, (error, response, body) => {
+    if (error) throw error
+    let userReaction = []
+    for (let i = 0; i < body.length; i++) {
+      if (body[i].user.id === context.state.user.id) {
+        userReaction.push(body[i].name)
+      }
+    }
+    context.commit('setReactions', { reactions: body.reverse() })
+    context.commit('setUserReaction', { reactionList: userReaction })
+  })
+}
+
+function getComments (context, args) {
+  Qiita.Resources.Comment.list_item_comments(args.id).then((result) => {
+    for (let index = result.length - 1; index >= 0; index--) {
+      // process img src for SSL
+      let body = cheerio.load(result[index].rendered_body)
+      body('body').find('img').each((i, elem) => {
+        const src = body(elem).attr('src')
+        const processedSrc = overwriteImgSrc(src)
+        body(elem).attr('src', processedSrc)
+      })
+      // process link use external browser
+      body('body').find('a').each((i, elem) => {
+        const href = body(elem).attr('href')
+        if (href.match(/^\//)) {
+          const url = 'https://' + args.team + '.qiita.com' + href
+          body(elem).attr('href', url)
+          body(elem).attr('target', '_blank')
+        } else if (href.match(/^#/)) {
+        } else {
+          body(elem).attr('target', '_blank')
+        }
+      })
+      result[index].html = body.html()
+      // set absolute time of created_at
+      result[index].absolute_created = moment(result[index].created_at).format('YYYY/MM/DD HH:mm:ss')
+    }
+    async.each(result, (comment, next) => {
+      getCommentReactions(context, { team: args.team, commentId: comment.id }, (reactions, userReaction) => {
+        comment.reactions = reactions
+        let isReactioned = {}
+        for (let i = 0; i < userReaction.length; i++) {
+          isReactioned[userReaction[i]] = true
+        }
+        comment.isReactioned = isReactioned
+        next(null)
+      })
+    }, (error) => {
+      if (error) throw error
+      context.commit('setComments', { comments: result.reverse() })
+    })
+  })
+}
+
+function getCommentReactions (context, args, callback) {
+  request.get({
+    url: 'https://' + args.team + '.qiita.com/api/v2/comments/' + args.commentId + '/reactions',
+    json: true,
+    auth: {
+      'bearer': token
+    }
+  }, (error, response, body) => {
+    if (error) throw error
+    let userReaction = []
+    for (let i = 0; i < body.length; i++) {
+      if (body[i].user.id === context.state.user.id) {
+        userReaction.push(body[i].name)
+      }
+    }
+    callback(body.reverse(), userReaction)
+  })
+}
+
 export const getTeams = async (context) => {
   setToken()
   let teams = []
@@ -75,7 +196,7 @@ export const getArticles = (context) => {
     Qiita.setEndpoint('https://' + team + '.qiita.com')
     Qiita.Resources.Item.list_items({
       page: 1,
-      per_page: 10
+      per_page: 20
     }).then((list) => {
       for (let i = 0; i < list.length; i++) {
         list[i].team = team
@@ -101,55 +222,9 @@ export const getArticles = (context) => {
 export const selectArticle = (context, payload) => {
   context.commit('clearPalette')
 
-  Qiita.setEndpoint('https://' + payload.article.team + '.qiita.com')
-  Qiita.Resources.Item.get_item(payload.article.id).then((result) => {
-    // set selected
-    context.commit('setSelected', { id: payload.article.id })
-    // set team
-    context.commit('setDetailTeam', { team: payload.article.team })
-    // process img src for SSL
-    let body = cheerio.load(result.rendered_body)
-    body('body').find('img').each((i, elem) => {
-      const src = body(elem).attr('src')
-      const processedSrc = overwriteImgSrc(src)
-      body(elem).attr('src', processedSrc)
-    })
-    body('body').find('a').each((i, elem) => {
-      const href = body(elem).attr('href')
-      if (href.match(/^\//)) {
-        const url = 'https://' + payload.article.team + '.qiita.com' + href
-        body(elem).attr('href', url)
-        body(elem).attr('target', '_blank')
-      } else if (href.match(/^#/)) {
-      } else {
-        body(elem).attr('target', '_blank')
-      }
-    })
-    // set absolute time of updated_at
-    result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+  getArticle(context, { team: payload.article.team, id: payload.article.id })
 
-    context.commit('setArticle', { article: result })
-    context.commit('setHtml', { html: body.html() })
-    window.scrollTo(0, 0)
-  })
-
-  request.get({
-    url: 'https://' + payload.article.team + '.qiita.com/api/v2/items/' + payload.article.id + '/reactions',
-    json: true,
-    auth: {
-      'bearer': token
-    }
-  }, (error, response, body) => {
-    if (error) throw error
-    let userReaction = []
-    for (let i = 0; i < body.length; i++) {
-      if (body[i].user.id === context.state.user.id) {
-        userReaction.push(body[i].name)
-      }
-    }
-    context.commit('setReactions', { reactions: body.reverse() })
-    context.commit('setUserReaction', { reactionList: userReaction })
-  })
+  getReactions(context, { team: payload.article.team, id: payload.article.id })
 }
 
 export const nextArticle = (context, payload) => {
@@ -170,37 +245,9 @@ export const nextArticle = (context, payload) => {
   if (next) {
     context.commit('clearPalette')
 
-    Qiita.setEndpoint('https://' + next.team + '.qiita.com')
-    Qiita.Resources.Item.get_item(next.id).then((result) => {
-      // set selected
-      context.commit('setSelected', { id: next.id })
-      // set team
-      context.commit('setDetailTeam', { team: next.team })
-      // process img src for SSL
-      let body = cheerio.load(result.rendered_body)
-      body('body').find('img').each((i, elem) => {
-        const src = body(elem).attr('src')
-        const processedSrc = overwriteImgSrc(src)
-        body(elem).attr('src', processedSrc)
-      })
-      body('body').find('a').each((i, elem) => {
-        const href = body(elem).attr('href')
-        if (href.match(/^\//)) {
-          const url = 'https://' + next.team + '.qiita.com' + href
-          body(elem).attr('href', url)
-          body(elem).attr('target', '_blank')
-        } else if (href.match(/^#/)) {
-        } else {
-          body(elem).attr('target', '_blank')
-        }
-      })
-      // set absolute time of updated_at
-      result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+    getArticle(context, { team: next.team, id: next.id })
 
-      context.commit('setArticle', { article: result })
-      context.commit('setHtml', { html: body.html() })
-      window.scrollTo(0, 0)
-    })
+    getReactions(context, { team: next.team, id: next.id })
   }
 }
 
@@ -222,37 +269,9 @@ export const prevArticle = (context, payload) => {
   if (prev) {
     context.commit('clearPalette')
 
-    Qiita.setEndpoint('https://' + prev.team + '.qiita.com')
-    Qiita.Resources.Item.get_item(prev.id).then((result) => {
-      // set selected
-      context.commit('setSelected', { id: prev.id })
-      // set team
-      context.commit('setDetailTeam', { team: prev.team })
-      // process img src for SSL
-      let body = cheerio.load(result.rendered_body)
-      body('body').find('img').each((i, elem) => {
-        const src = body(elem).attr('src')
-        const processedSrc = overwriteImgSrc(src)
-        body(elem).attr('src', processedSrc)
-      })
-      body('body').find('a').each((i, elem) => {
-        const href = body(elem).attr('href')
-        if (href.match(/^\//)) {
-          const url = 'https://' + prev.team + '.qiita.com' + href
-          body(elem).attr('href', url)
-          body(elem).attr('target', '_blank')
-        } else if (href.match(/^#/)) {
-        } else {
-          body(elem).attr('target', '_blank')
-        }
-      })
-      // set absolute time of updated_at
-      result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
+    getArticle(context, { team: prev.team, id: prev.id })
 
-      context.commit('setArticle', { article: result })
-      context.commit('setHtml', { html: body.html() })
-      window.scrollTo(0, 0)
-    })
+    getReactions(context, { team: prev.team, id: prev.id })
   }
 }
 
@@ -270,7 +289,6 @@ export const toggleReaction = (context, payload) => {
     }, (error, response, body) => {
       if (error) throw error
       context.commit('deleteReaction', { name: reaction })
-      context.commit('clearPalette')
     })
   } else { // false -> true : POST
     request.post({
@@ -284,7 +302,42 @@ export const toggleReaction = (context, payload) => {
     }, (error, response, body) => {
       if (error) throw error
       context.commit('addReaction', { name: reaction, body: body })
-      context.commit('clearPalette')
+    })
+  }
+}
+
+export const toggleCommentReaction = (context, payload) => {
+  const reaction = payload.reaction
+  let comment
+  for (let i = 0; i < context.state.detail.comments.length; i++) {
+    if (context.state.detail.comments[i].id === payload.id) {
+      comment = context.state.detail.comments[i]
+    }
+  }
+  const current = reaction in comment.isReactioned ? comment.isReactioned[reaction] : false
+  if (current) { // true -> false : DELETE
+    request.delete({
+      url: 'https://' + context.state.detail.team + '.qiita.com/api/v2/comments/' + payload.id + '/reactions/' + reaction,
+      json: true,
+      auth: {
+        'bearer': token
+      }
+    }, (error, response, body) => {
+      if (error) throw error
+      context.commit('deleteCommentReaction', { id: payload.id, name: reaction })
+    })
+  } else { // false -> true : POST
+    request.post({
+      url: 'https://' + context.state.detail.team + '.qiita.com/api/v2/comments/' + payload.id + '/reactions',
+      json: {
+        name: reaction
+      },
+      auth: {
+        'bearer': token
+      }
+    }, (error, response, body) => {
+      if (error) throw error
+      context.commit('addCommentReaction', { id: payload.id, name: reaction, body: body })
     })
   }
 }
