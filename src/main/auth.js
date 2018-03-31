@@ -1,4 +1,4 @@
-import { BrowserWindow } from 'electron'
+import { Menu, BrowserWindow } from 'electron'
 import request from 'request'
 import fs from 'fs'
 import path from 'path'
@@ -24,6 +24,7 @@ export default class Auth {
         webSecurity: false
       }
     })
+    setupMenu()
     const state = this.generateState()
     const authUrl = 'https://qiita.com/api/v2/oauth/authorize?client_id=' + options.client_id + '&scope=' + options.scopes.join('+') + '&state=' + state
 
@@ -76,4 +77,30 @@ export default class Auth {
     }
     return state
   }
+}
+
+function setupMenu () {
+  const template = [
+    {
+      label: 'Electron',
+      submenu: [
+        { role: 'close' },
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { label: 'Undo', accelerator: 'CmdOrCtrl+Z', selector: 'undo:' },
+        { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', selector: 'redo:' },
+        { type: 'separator' },
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', selector: 'cut:' },
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', selector: 'copy:' },
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', selector: 'paste:' },
+        { label: 'Select All', accelerator: 'CmdOrCtrl+A', selector: 'selectAll:' }
+      ]
+    }
+  ]
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
 }
