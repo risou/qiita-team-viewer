@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron'
 import request from 'request'
 import fs from 'fs'
+import path from 'path'
 
 const options = {
   client_id: '',
@@ -10,7 +11,7 @@ const options = {
 
 export default class Auth {
   constructor () {
-    const config = JSON.parse(fs.readFileSync('./config.json'))
+    const config = JSON.parse(fs.readFileSync(path.join(__static, './config.json')))
     options.client_id = config.client_id
     options.client_secret = config.client_secret
   }
