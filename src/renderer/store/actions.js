@@ -276,6 +276,8 @@ export const prevArticle = (context, payload) => {
 }
 
 export const toggleReaction = (context, payload) => {
+  context.commit('clearPalettes')
+
   const reaction = payload.reaction
   const detail = context.state.detail
   const current = detail.isReactioned[reaction]
