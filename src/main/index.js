@@ -102,33 +102,43 @@ function setupMenu () {
   Menu.setApplicationMenu(menu)
 }
 
-function verifyAuth () {
-  const checkStorage = storage.has('auth')
-  if (checkStorage.status) {
-    if (!checkStorage.data) {
-      fs.writeFileSync(path.join(app.getPath('userData'), 'storage', 'auth.json'), '{}')
+async function verifyAuth () {
+  await fs.access(path.join(app.getPath('userData'), 'storage'), fs.constants.R_OK | fs.constants.W_OK, (error) => {
+    if (error) {
+      if (error.code === 'ENOENT') {
+        fs.mkdirSync(path.join(app.getPath('userData'), 'storage'))
+      } else {
+        console.log(error)
+        throw error
+      }
     }
-  } else {
-    throw checkStorage.error
-  }
-  const authStorage = storage.get('auth')
-  if (authStorage.status) {
-    if (authStorage.data.token) {
-      createWindow()
+    const checkStorage = storage.has('auth')
+    if (checkStorage.status) {
+      if (!checkStorage.data) {
+        fs.writeFileSync(path.join(app.getPath('userData'), 'storage', 'auth.json'), '{}')
+      }
     } else {
-      let auth = new Auth()
-      auth.getAccessToken((token) => {
-        let result = storage.set('auth', {token: token})
-        if (result.status) {
-          createWindow()
-        } else {
-          throw result.error
-        }
-      })
+      throw checkStorage.error
     }
-  } else {
-    throw authStorage.error
-  }
+    const authStorage = storage.get('auth')
+    if (authStorage.status) {
+      if (authStorage.data.token) {
+        createWindow()
+      } else {
+        let auth = new Auth()
+        auth.getAccessToken((token) => {
+          let result = storage.set('auth', {token: token})
+          if (result.status) {
+            createWindow()
+          } else {
+            throw result.error
+          }
+        })
+      }
+    } else {
+      throw authStorage.error
+    }
+  })
 }
 
 app.on('ready', verifyAuth)
