@@ -150,6 +150,9 @@ export default {
 </script>
 
 <style lang="scss">
+#detail .media {
+  padding-top: 20px;
+}
 .reaction_panel {
   display: flex;
   padding-bottom: 18px;
