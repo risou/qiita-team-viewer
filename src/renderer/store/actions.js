@@ -165,6 +165,9 @@ function getCommentReactions (context, args, callback) {
     }
   }, (error, response, body) => {
     if (error) throw error
+    if (response.statusCode >= 400) {
+      return
+    }
     let userReaction = []
     for (let i = 0; i < body.length; i++) {
       if (body[i].user.id === context.state.user.id) {
