@@ -1,9 +1,9 @@
 {
-  "name": "qiita-team-viewer",
-  "version": "0.0.0",
+  "name": "QiitaTeamViewer",
+  "version": "0.1.0",
   "author": "risou <risou.f@gmail.com>",
   "description": "Electron App for viewing some Qiita::Team",
-  "license": null,
+  "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
     "build": "node .electron-vue/build.js && electron-builder",
@@ -22,7 +22,7 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "qiita-team-viewer",
+    "productName": "QiitaTeamViewer",
     "appId": "org.simulatedgreg.electron-vue",
     "directories": {
       "output": "build"
