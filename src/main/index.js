@@ -90,7 +90,7 @@ function setupMenu () {
       submenu: [
         {
           label: 'Reload',
-          accelerator: 'CmdOrCtrl+R',
+          accelerator: 'R',
           click: (item, focusedWindow) => {
             mainWindow.webContents.send('R', 'Reload')
           }
