@@ -13,7 +13,9 @@ Qiita::Team を閲覧するためのクライアントです。
 
 # ダウンロード
 
-あとで書く
+https://github.com/risou/qiita-team-viewer/releases/tag/v0.1.0
+
+現時点では OS X 版のみバイナリを用意しています。
 
 # 使い方
 
