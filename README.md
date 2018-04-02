@@ -1,28 +1,41 @@
-# qiita-team-viewer
+# Qiita Team Viewer
 
-> Electron App for viewing some Qiita::Team
+Qiita::Team を閲覧するためのクライアントです。
+以下の機能を備えています。
 
-#### Build Setup
+- 所属する Qiita::Team の記事をリストで表示
+- Qiita::Team の記事の閲覧
+- Qiita::Team の記事およびコメントへの絵文字リアクションの追加および削除
 
-``` bash
-# install dependencies
-npm install
+ほとんどの機能は `read_qiita_team` のスコープに収まりますが、絵文字リアクションの追加および削除のために `write_qiita_team` の権限を要求します。
 
-# serve with hot reload at localhost:9080
-npm run dev
+参照： [Qiita API v2 のスコープ](https://qiita.com/api/v2/docs#%E3%82%B9%E3%82%B3%E3%83%BC%E3%83%97)
 
-# build electron application for production
-npm run build
+# ダウンロード
 
-# run unit & end-to-end tests
-npm test
+あとで書く
 
+# 使い方
 
-# lint all JS/Vue component files in `src/`
-npm run lint
+初回起動すると Qiita へのログインを要求されます。
+Qiita にログインした後、 Qiita Team Viewer との連携を求められます。
+（ここで `read_qiita_team` および `write_qiita_team` の権限を要求される旨が確認できます）
+連携すると、自動的に所属する全ての Qiita::Team から新着記事を10件ずつ取得し、投稿日時の降順で表示します。
 
-```
+# キーボードショートカット
 
----
+キー | 動作
+:--: | :---
+J | 次の記事を表示する
+K | 前の記事を表示する
+L | 表示している記事をブラウザで開く
+R | 記事リストを更新する
 
-This project was generated with [electron-vue](https://github.com/SimulatedGREG/electron-vue) using [vue-cli](https://github.com/vuejs/vue-cli). Documentation about the original structure can be found [here](https://simulatedgreg.gitbooks.io/electron-vue/content/index.html).
+# 追加予定の機能
+
+以下の機能の追加を考えています（追加される保証はありません）。
+
+- 既読管理
+- 記事検索
+- 記事へのコメント追加
+
