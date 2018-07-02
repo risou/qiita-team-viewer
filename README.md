@@ -1,11 +1,11 @@
 # Qiita Team Viewer
 
-Qiita::Team を閲覧するためのクライアントです。
+Qiita:Team を閲覧するためのクライアントです。
 以下の機能を備えています。
 
-- 所属する Qiita::Team の記事をリストで表示
-- Qiita::Team の記事の閲覧
-- Qiita::Team の記事およびコメントへの絵文字リアクションの追加および削除
+- 所属する Qiita:Team の記事をリストで表示
+- Qiita:Team の記事の閲覧
+- Qiita:Team の記事およびコメントへの絵文字リアクションの追加および削除
 
 ほとんどの機能は `read_qiita_team` のスコープに収まりますが、絵文字リアクションの追加および削除のために `write_qiita_team` の権限を要求します。
 
@@ -22,7 +22,7 @@ https://github.com/risou/qiita-team-viewer/releases/tag/v0.1.0
 初回起動すると Qiita へのログインを要求されます。
 Qiita にログインした後、 Qiita Team Viewer との連携を求められます。
 （ここで `read_qiita_team` および `write_qiita_team` の権限を要求される旨が確認できます）
-連携すると、自動的に所属する全ての Qiita::Team から新着記事を10件ずつ取得し、投稿日時の降順で表示します。
+連携すると、自動的に所属する全ての Qiita:Team から新着記事を10件ずつ取得し、投稿日時の降順で表示します。
 
 # キーボードショートカット
 
