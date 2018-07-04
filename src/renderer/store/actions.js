@@ -278,6 +278,38 @@ export const prevArticle = (context, payload) => {
   }
 }
 
+export const firstArticle = (context, payload) => {
+  const list = context.state.articles
+  let first
+  if (list.length > 0) {
+    first = list[0]
+  }
+
+  if (first) {
+    context.commit('clearPalette')
+
+    getArticle(context, { team: first.team, id: first.id })
+
+    getReactions(context, { team: first.team, id: first.id })
+  }
+}
+
+export const lastArticle = (context, payload) => {
+  const list = context.state.articles
+  let last
+  if (list.length > 0) {
+    last = list[list.length - 1]
+  }
+
+  if (last) {
+    context.commit('clearPalette')
+
+    getArticle(context, { team: last.team, id: last.id })
+
+    getReactions(context, { team: last.team, id: last.id })
+  }
+}
+
 export const toggleReaction = (context, payload) => {
   context.commit('clearPalettes')
 

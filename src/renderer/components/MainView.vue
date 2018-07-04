@@ -60,6 +60,20 @@
         }
         this.$store.dispatch('prevArticle')
       })
+      this.$electron.ipcRenderer.on('g', (event, arg) => {
+        const list = document.getElementById('list')
+        if (list) {
+          list.scrollTop = 0
+        }
+        this.$store.dispatch('firstArticle')
+      })
+      this.$electron.ipcRenderer.on('Shift+g', (event, arg) => {
+        const list = document.getElementById('list')
+        if (list) {
+          list.scrollTop = list.scrollHeight
+        }
+        this.$store.dispatch('lastArticle')
+      })
       this.$electron.ipcRenderer.on('L', (event, arg) => {
         const url = this.$store.state.detail.article.url
         if (url) {

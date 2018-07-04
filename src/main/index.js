@@ -77,6 +77,20 @@ function setupMenu () {
           }
         },
         {
+          label: 'Newest',
+          accelerator: 'g',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('g', 'Newest')
+          }
+        },
+        {
+          label: 'Oldest',
+          accelerator: 'Shift+g',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('Shift+g', 'Oldest')
+          }
+        },
+        {
           label: 'Open Browser',
           accelerator: 'L',
           click: (item, focusedWindow) => {
