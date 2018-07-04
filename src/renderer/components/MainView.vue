@@ -60,7 +60,7 @@
         }
         this.$store.dispatch('prevArticle')
       })
-      this.$electron.ipcRenderer.on('L', (evnet, arg) => {
+      this.$electron.ipcRenderer.on('L', (event, arg) => {
         const url = this.$store.state.detail.article.url
         if (url) {
           shell.openExternal(url)
