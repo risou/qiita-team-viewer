@@ -29,18 +29,15 @@ function setToken () {
   axios.defaults.headers.common['Authorization'] = authHeader
 }
 
-function overwriteImgSrc (imageUrl) {
-  let result = imageUrl
-  axios({
+async function overwriteImgSrc (imageUrl) {
+  const resp = await axios({
     method: 'get',
     url: imageUrl,
     responseType: 'arraybuffer'
-  }).then((resp) => {
-    const mimeType = resp.headers['content-type'].toLowerCase()
-    const imgBase64 = Buffer.from(resp.data, 'binary').toString('base64')
-    result = 'data:' + mimeType + ';base64,' + imgBase64
   })
-  return result
+  const mimeType = resp.headers['content-type'].toLowerCase()
+  const imgBase64 = Buffer.from(resp.data, 'binary').toString('base64')
+  return 'data:' + mimeType + ';base64,' + imgBase64
 }
 
 function calcRelativeTime (absoluteTime) {
@@ -65,9 +62,9 @@ function getArticle (context, args) {
     getComments(context, { team: args.team, id: args.id })
     // process img src for SSL
     let body = cheerio.load(result.rendered_body)
-    body('body').find('img').each((i, elem) => {
-      const src = body(elem).attr('src')
-      const processedSrc = overwriteImgSrc(src)
+    body('body').find('img').each(async (i, elem) => {
+      let src = body(elem).attr('src')
+      const processedSrc = await overwriteImgSrc(src)
       body(elem).attr('src', processedSrc)
     })
     // process link use external browser
@@ -118,9 +115,10 @@ function getComments (context, args) {
     for (let index = result.length - 1; index >= 0; index--) {
       // process img src for SSL
       let body = cheerio.load(result[index].rendered_body)
-      body('body').find('img').each((i, elem) => {
+      body('body').find('img').each(async (i, elem) => {
         const src = body(elem).attr('src')
-        const processedSrc = overwriteImgSrc(src)
+        const processedSrc = await overwriteImgSrc(src)
+        console.log(processedSrc)
         body(elem).attr('src', processedSrc)
       })
       // process link use external browser
