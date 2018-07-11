@@ -40,6 +40,23 @@ async function overwriteImgSrc (imageUrl) {
   return 'data:' + mimeType + ';base64,' + imgBase64
 }
 
+async function getUserEmojiPath (userId) {
+  const user = await Qiita.Resources.User.get_user(userId, {})
+  return user.profile_image_url
+}
+
+async function updateImgSrc (body, elem) {
+  const src = body(elem).attr('src')
+  let result = src
+  if (src.indexOf('/user_emojis/') === 0) {
+    const userId = src.substr(13)
+    result = await getUserEmojiPath(userId)
+  } else {
+    result = await overwriteImgSrc(src)
+  }
+  body(elem).attr('src', result)
+}
+
 function calcRelativeTime (absoluteTime) {
   const diff = moment() - moment(absoluteTime)
   if (diff < 3600000) {
@@ -53,7 +70,7 @@ function calcRelativeTime (absoluteTime) {
 
 function getArticle (context, args) {
   Qiita.setEndpoint('https://' + args.team + '.qiita.com')
-  Qiita.Resources.Item.get_item(args.id).then((result) => {
+  Qiita.Resources.Item.get_item(args.id).then(async (result) => {
     // set selected
     context.commit('setSelected', { id: args.id })
     // set team
@@ -62,10 +79,9 @@ function getArticle (context, args) {
     getComments(context, { team: args.team, id: args.id })
     // process img src for SSL
     let body = cheerio.load(result.rendered_body)
-    body('body').find('img').each(async (i, elem) => {
-      let src = body(elem).attr('src')
-      const processedSrc = await overwriteImgSrc(src)
-      body(elem).attr('src', processedSrc)
+    let promises = []
+    body('body').find('img').each((i, elem) => {
+      promises.push(updateImgSrc(body, elem))
     })
     // process link use external browser
     body('body').find('a').each((i, elem) => {
@@ -84,6 +100,7 @@ function getArticle (context, args) {
     // set absolute time of updated_at
     result.absolute_updated = moment(result.updated_at).format('YYYY/MM/DD HH:mm:ss')
 
+    await Promise.all(promises)
     context.commit('setArticle', { article: result })
     context.commit('setHtml', { html: body.html() })
     window.scrollTo(0, 0)
@@ -111,15 +128,13 @@ function getReactions (context, args) {
 }
 
 function getComments (context, args) {
-  Qiita.Resources.Comment.list_item_comments(args.id).then((result) => {
+  Qiita.Resources.Comment.list_item_comments(args.id).then(async (result) => {
     for (let index = result.length - 1; index >= 0; index--) {
       // process img src for SSL
       let body = cheerio.load(result[index].rendered_body)
-      body('body').find('img').each(async (i, elem) => {
-        const src = body(elem).attr('src')
-        const processedSrc = await overwriteImgSrc(src)
-        console.log(processedSrc)
-        body(elem).attr('src', processedSrc)
+      let promises = []
+      body('body').find('img').each((i, elem) => {
+        promises.push(updateImgSrc(body, elem))
       })
       // process link use external browser
       body('body').find('a').each((i, elem) => {
@@ -133,6 +148,7 @@ function getComments (context, args) {
           body(elem).attr('target', '_blank')
         }
       })
+      await Promise.all(promises)
       result[index].html = body.html()
       // set absolute time of created_at
       result[index].absolute_created = moment(result[index].created_at).format('YYYY/MM/DD HH:mm:ss')
