@@ -236,6 +236,40 @@ export const getArticles = (context) => {
   })
 }
 
+export const searchArticles = (context) => {
+  let articles = []
+  const teams = context.state.team
+  let params = {
+    page: 1,
+    per_age: 10
+  }
+  if (context.state.query !== '') {
+    params['query'] = context.state.query
+  }
+  async.each(teams, (team, next) => {
+    Qiita.setEndpoint('https://' + team + '.qiita.com')
+    Qiita.Resources.Item.list_items(params).then((list) => {
+      for (let i = 0; i < list.length; i++) {
+        list[i].team = team
+        articles.push(list[i])
+      }
+      next(null)
+    })
+  }, (error) => {
+    if (error) throw error
+    let sortedArticles = articles.sort((a, b) => {
+      if (a.created_at < b.created_at) return 1
+      if (a.created_at > b.created_at) return -1
+      return 0
+    })
+    for (let i = 0; i < sortedArticles.length; i++) {
+      sortedArticles[i].relative_time = calcRelativeTime(sortedArticles[i].created_at)
+      sortedArticles[i].absolute_time = moment(sortedArticles[i].created_at).format('YYYY/MM/DD HH:mm:ss')
+    }
+    context.commit('setArticles', { articles: sortedArticles })
+  })
+}
+
 export const selectArticle = (context, payload) => {
   context.commit('clearPalette')
 

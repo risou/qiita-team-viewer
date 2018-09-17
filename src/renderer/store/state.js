@@ -3,6 +3,7 @@ export default {
   team: [],
   articles: [],
   selected: '',
+  query: '',
   detail: {
     team: '',
     article: {},

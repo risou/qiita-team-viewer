@@ -1,5 +1,11 @@
 <template>
   <div class="list">
+    <div>
+      <form @submit.prevent="searchArticles()" class="tile">
+        <input type="text" v-model.lazy="query" class="tile is-10 input is-small"></input>
+        <button type="submit" class="tile is-2 button is-small">Search</button>
+      </form>
+    </div>
     <article v-for="article in articles" class="box is-marginless is-radiusless" @click="selectArticle({ article: article })" :class="{ active: article.id === selected }">
       <div class="media">
         <div class="media-left">
@@ -44,11 +50,20 @@ export default {
     ...mapState([
       'articles',
       'selected'
-    ])
+    ]),
+    query: {
+      get () {
+        return this.$store.state.query
+      },
+      set (value) {
+        this.$store.commit('updateQuery', {query: value})
+      }
+    }
   },
   methods: {
     ...mapActions([
-      'selectArticle'
+      'selectArticle',
+      'searchArticles'
     ])
   },
   created () {

@@ -128,3 +128,7 @@ export const toggleCommentPalette = (state, payload) => {
     }
   }
 }
+
+export const updateQuery = (state, payload) => {
+  state.query = payload.query
+}
