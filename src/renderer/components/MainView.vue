@@ -22,9 +22,15 @@
     },
     mounted () {
       this.$electron.ipcRenderer.on('R', (event, arg) => {
+        if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
+          return
+        }
         this.$store.dispatch('getArticles')
       })
       this.$electron.ipcRenderer.on('J', (event, arg) => {
+        if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
+          return
+        }
         const current = document.getElementsByClassName('box active')
         if (current.length > 0) {
           const currentElement = current[0]
@@ -43,6 +49,9 @@
         this.$store.dispatch('nextArticle')
       })
       this.$electron.ipcRenderer.on('K', (event, arg) => {
+        if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
+          return
+        }
         const current = document.getElementsByClassName('box active')
         if (current.length > 0) {
           const currentElement = current[0]
@@ -61,6 +70,9 @@
         this.$store.dispatch('prevArticle')
       })
       this.$electron.ipcRenderer.on('g', (event, arg) => {
+        if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
+          return
+        }
         const list = document.getElementById('list')
         if (list) {
           list.scrollTop = 0
@@ -68,6 +80,9 @@
         this.$store.dispatch('firstArticle')
       })
       this.$electron.ipcRenderer.on('Shift+g', (event, arg) => {
+        if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
+          return
+        }
         const list = document.getElementById('list')
         if (list) {
           list.scrollTop = list.scrollHeight
@@ -75,6 +90,9 @@
         this.$store.dispatch('lastArticle')
       })
       this.$electron.ipcRenderer.on('L', (event, arg) => {
+        if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase) {
+          return
+        }
         const url = this.$store.state.detail.article.url
         if (url) {
           shell.openExternal(url)
@@ -83,18 +101,4 @@
     }
   }
 </script>
-
-<style>
-#list {
-  position: fixed;
-  height: 100%;
-  overflow: auto;
-}
-#detail {
-  position: relative;
-  left: -12px;
-}
-::-webkit-scrollbar {
-  display: none;
-}
 </style>
