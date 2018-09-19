@@ -270,6 +270,11 @@ export const searchArticles = (context) => {
   })
 }
 
+export const searchByTag = (context, payload) => {
+  context.commit('updateQuery', {query: 'tag:' + payload.tag})
+  searchArticles(context)
+}
+
 export const selectArticle = (context, payload) => {
   context.commit('clearPalette')
 

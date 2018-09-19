@@ -15,6 +15,11 @@
             </div>
           </div>
           <h1 class="title">{{ article.title }}</h1>
+          <div class="tags">
+            <span class="tag is-link" v-for="tag in article.tags" @click="searchByTag({tag: tag.name})">
+              {{ tag.name }}
+            </span>
+          </div>
         </div>
       </div>
       <hr/>
@@ -132,7 +137,8 @@ export default {
   methods: {
     ...mapActions([
       'toggleReaction',
-      'toggleCommentReaction'
+      'toggleCommentReaction',
+      'searchByTag'
     ]),
     togglePalette: function (event) {
       this.$store.commit('togglePalette')
@@ -152,6 +158,9 @@ export default {
 <style lang="scss">
 #detail .media {
   padding-top: 20px;
+}
+.tag.is-link {
+  cursor: pointer;
 }
 .reaction_panel {
   display: flex;
