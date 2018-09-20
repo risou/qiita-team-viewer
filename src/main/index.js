@@ -131,6 +131,16 @@ function setupMenu () {
           label: 'Select All',
           accelerator: 'CmdOrCtrl+A',
           selector: 'selectAll:'
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: 'Find',
+          accelerator: 'CmdOrCtrl+F',
+          click: (item, focusedWindow) => {
+            mainWindow.webContents.send('CmdOrCtrl+F', 'Find')
+          }
         }
       ]
     },

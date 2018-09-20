@@ -98,6 +98,12 @@ export default {
         shell.openExternal(url)
       }
     })
+    this.$electron.ipcRenderer.on('CmdOrCtrl+F', (event, arg) => {
+      if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
+        return
+      }
+      document.getElementById('search').focus()
+    })
   }
 }
 </script>

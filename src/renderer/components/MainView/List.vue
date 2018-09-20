@@ -2,7 +2,7 @@
   <div class="list">
     <div>
       <form @submit.prevent="searchArticles()" class="tile">
-        <input type="text" v-model.lazy="query" class="tile is-10 input is-small"></input>
+        <input id="search" type="text" v-model.lazy="query" class="tile is-10 input is-small"></input>
         <button type="submit" class="tile is-2 button is-small">Search</button>
       </form>
     </div>
