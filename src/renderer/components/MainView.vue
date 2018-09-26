@@ -25,7 +25,7 @@ export default {
       if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
         return
       }
-      this.$store.dispatch('getArticles')
+      this.$store.dispatch('searchArticles')
     })
     this.$electron.ipcRenderer.on('g', (event, arg) => {
       if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {

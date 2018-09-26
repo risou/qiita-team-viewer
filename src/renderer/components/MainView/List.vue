@@ -109,7 +109,7 @@ export default {
   },
   created () {
     this.$store.dispatch('getTeams').then(() => {
-      this.$store.dispatch('getArticles')
+      this.$store.dispatch('searchArticles')
     })
   }
 }
