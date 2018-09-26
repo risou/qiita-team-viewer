@@ -2,7 +2,7 @@
   "name": "QiitaTeamViewer",
   "version": "0.1.0",
   "author": "risou <risou.f@gmail.com>",
-  "description": "Electron App for viewing some Qiita::Team",
+  "description": "Electron App for viewing some Qiita:Team",
   "license": "MIT",
   "main": "./dist/electron/main.js",
   "scripts": {
