@@ -1,6 +1,6 @@
 {
   "name": "QiitaTeamViewer",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "risou <risou.f@gmail.com>",
   "description": "Electron App for viewing some Qiita:Team",
   "license": "MIT",
