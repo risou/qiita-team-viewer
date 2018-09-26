@@ -237,6 +237,8 @@ export const getArticles = (context) => {
 }
 
 export const searchArticles = (context) => {
+  context.commit('clearSelected')
+
   let articles = []
   const teams = context.state.team
   let params = {
@@ -295,6 +297,9 @@ export const nextArticle = (context, payload) => {
         continue
       }
       next = list[i + 1]
+    }
+    if (next === undefined) {
+      next = list[0]
     }
   }
 

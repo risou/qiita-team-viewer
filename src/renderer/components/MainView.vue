@@ -27,48 +27,6 @@ export default {
       }
       this.$store.dispatch('getArticles')
     })
-    this.$electron.ipcRenderer.on('J', (event, arg) => {
-      if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
-        return
-      }
-      const current = document.getElementsByClassName('box active')
-      if (current.length > 0) {
-        const currentElement = current[0]
-        const rect = currentElement.getBoundingClientRect()
-        if (rect.top < 0 || rect.bottom + 148 > window.innerHeight) {
-          currentElement.scrollIntoView(true)
-        }
-      } else {
-        const articles = document.getElementsByClassName('box')
-        const first = articles[0]
-        const rect = first.getBoundingClientRect()
-        if (rect.top < 0) {
-          first.scrollIntoView(true)
-        }
-      }
-      this.$store.dispatch('nextArticle')
-    })
-    this.$electron.ipcRenderer.on('K', (event, arg) => {
-      if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
-        return
-      }
-      const current = document.getElementsByClassName('box active')
-      if (current.length > 0) {
-        const currentElement = current[0]
-        const rect = currentElement.getBoundingClientRect()
-        if (rect.top - 148 < 0 || rect.bottom > window.innerHeight) {
-          currentElement.scrollIntoView(false)
-        }
-      } else {
-        const articles = document.getElementsByClassName('box')
-        const first = articles[0]
-        const rect = first.getBoundingClientRect()
-        if (rect.top < 0) {
-          first.scrollIntoView(true)
-        }
-      }
-      this.$store.dispatch('prevArticle')
-    })
     this.$electron.ipcRenderer.on('g', (event, arg) => {
       if (document.activeElement.tagName.toUpperCase() === 'input'.toUpperCase()) {
         return

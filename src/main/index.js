@@ -60,20 +60,6 @@ function setupMenu () {
       label: 'Select',
       submenu: [
         {
-          label: 'Next',
-          accelerator: 'J',
-          click: (item, focusedWindow) => {
-            mainWindow.webContents.send('J', 'Next')
-          }
-        },
-        {
-          label: 'Previous',
-          accelerator: 'K',
-          click: (item, focusedWindow) => {
-            mainWindow.webContents.send('K', 'Previous')
-          }
-        },
-        {
           label: 'Newest',
           accelerator: 'g',
           click: (item, focusedWindow) => {

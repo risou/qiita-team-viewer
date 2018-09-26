@@ -1,8 +1,8 @@
 <template>
-  <div class="list">
+  <div class="list" v-shortkey="{next: ['j'], prev: ['k']}" @shortkey="keyAction">
     <div>
       <form @submit.prevent="searchArticles()" class="tile">
-        <input id="search" type="text" v-model.lazy="query" class="tile is-10 input is-small"></input>
+        <input id="search" type="text" v-model.lazy="query" class="tile is-10 input is-small" v-shortkey.avoid></input>
         <button type="submit" class="tile is-2 button is-small">Search</button>
       </form>
     </div>
@@ -56,6 +56,7 @@ export default {
         return this.$store.state.query
       },
       set (value) {
+        document.activeElement.blur()
         this.$store.commit('updateQuery', {query: value})
       }
     }
@@ -64,7 +65,47 @@ export default {
     ...mapActions([
       'selectArticle',
       'searchArticles'
-    ])
+    ]),
+    keyAction (event) {
+      console.log(event)
+      const current = document.getElementsByClassName('box active')
+      switch (event.srcKey) {
+        case 'next':
+          if (current.length > 0) {
+            const currentElement = current[0]
+            const rect = currentElement.getBoundingClientRect()
+            if (rect.top < 0 || rect.bottom + 148 > window.innerHeight) {
+              currentElement.scrollIntoView(true)
+            }
+          } else {
+            const articles = document.getElementsByClassName('box')
+            const first = articles[0]
+            const rect = first.getBoundingClientRect()
+            if (rect.top < 0) {
+              first.scrollIntoView(true)
+            }
+          }
+          this.$store.dispatch('nextArticle')
+          break
+        case 'prev':
+          if (current.length > 0) {
+            const currentElement = current[0]
+            const rect = currentElement.getBoundingClientRect()
+            if (rect.top - 148 < 0 || rect.bottom > window.innerHeight) {
+              currentElement.scrollIntoView(false)
+            }
+          } else {
+            const articles = document.getElementsByClassName('box')
+            const first = articles[0]
+            const rect = first.getBoundingClientRect()
+            if (rect.top < 0) {
+              first.scrollIntoView(true)
+            }
+          }
+          this.$store.dispatch('prevArticle')
+          break
+      }
+    }
   },
   created () {
     this.$store.dispatch('getTeams').then(() => {

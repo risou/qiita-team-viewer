@@ -19,6 +19,10 @@ export const setSelected = (state, payload) => {
   state.selected = payload.id
 }
 
+export const clearSelected = (state, payload) => {
+  state.selected = ''
+}
+
 export const setDetailTeam = (state, payload) => {
   state.detail.team = payload.team
 }
