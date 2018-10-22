@@ -213,7 +213,7 @@ export const searchArticles = (context) => {
   const teams = context.state.team
   let params = {
     page: 1,
-    per_age: 10
+    per_page: 10
   }
   if (context.state.query !== '') {
     params['query'] = context.state.query
